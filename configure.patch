@@ -1,0 +1,48 @@
+diff --git a/build/make/configure.sh b/build/make/configure.sh
+index ac60f50..f95dbdc 100644
+--- a/build/make/configure.sh
++++ b/build/make/configure.sh
+@@ -456,7 +456,7 @@ NM=${NM}
+ 
+ CFLAGS  = ${CFLAGS}
+ CXXFLAGS  = ${CXXFLAGS}
+-ARFLAGS = -crs\$(if \$(quiet),,v)
++ARFLAGS = crs\$(if \$(quiet),,v)
+ LDFLAGS = ${LDFLAGS}
+ ASFLAGS = ${ASFLAGS}
+ extralibs = ${extralibs}
+@@ -1337,6 +1337,22 @@ EOF
+           ;;
+       esac
+       ;;
++    asmjs-unknown-emscripten)
++      # echo "@ " $toolchain " = asmjs-unknown-emscripten""
++      # echo "@ " $tgt_isa "-" $tgt_os "-" $tgt_cc
++      CC=emcc
++      LD=llvm-link
++      AR=llvm-ar
++      AS=llvm-as
++      NM=llvm-nm
++      tune_cflags=""
++      tune_asflags=""
++      add_cflags -emit-llvm
++      #add_ldflags
++      #add_asflags
++      disabled multithread
++      HAVE_GNU_STRIP=no
++      ;;
+     *-gcc|generic-gnu)
+       link_with_cc=gcc
+       enable_feature gcc
+diff --git a/configure b/configure
+index 379c2f4..deb0965 100755
+--- a/configure
++++ b/configure
+@@ -155,6 +155,7 @@ all_platforms="${all_platforms} x86_64-win64-vs11"
+ all_platforms="${all_platforms} x86_64-win64-vs12"
+ all_platforms="${all_platforms} x86_64-win64-vs14"
+ all_platforms="${all_platforms} generic-gnu"
++all_platforms="${all_platforms} asmjs-unknown-emscripten"
+ 
+ # all_targets is a list of all targets that can be configured
+ # note that these should be in dependency order for now.
