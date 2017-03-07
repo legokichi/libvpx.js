@@ -9,12 +9,6 @@ export const sizes = {
   float: 4,
   double: 8,
   '*': 4,
-  '*i64': 4,
-  '*i32': 4,
-  '*i16': 4,
-  '*i8': 4,
-  '*float': 4,
-  '*double': 4
 };
 
 export type Type = keyof typeof sizes;
@@ -86,15 +80,19 @@ export class Struct<Member extends string> {
     throw new Error("No such member: " + name);
   }
   get(name: Member): number {
+    if(typeof this.address !== "number"){
+      throw new Error("this address is already free");
+    }
     const offset = this.getOffset(name);
     const type = this.getType(name);
     return Module.getValue(this.address + offset, type);
   }
   set(name: Member, value: number): void {
+    if(typeof this.address !== "number"){
+      throw new Error("this address is already free");
+    }
     const offset = this.getOffset(name);
     const type = this.getType(name);
     Module.setValue(this.address + offset, value, type);
   }
 }
-
-

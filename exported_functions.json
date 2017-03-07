@@ -1,7 +1,6 @@
 [
   "_vpx_codec_version_str",
   "_vpx_codec_dec_init_ver",
-  "_vpx_codec_enc_init_ver",
   "_vpx_codec_vp8_dx",
   "_vpx_codec_iface_name",
   "_vpx_codec_err_to_string",
@@ -9,7 +8,5 @@
   "_vpx_codec_error",
   "_vpx_codec_decode",
   "_vpx_codec_get_frame",
-  "_vpx_codec_encode",
-  "_vpx_codec_get_cx_data",
   "_vpx_img_alloc"
 ]
