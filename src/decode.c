@@ -1,8 +1,21 @@
 #include "../libvpx/vpx/vpx_decoder.h"
+#include "../libvpx/vpx/internal/vpx_codec_internal.h"
+#include "../libvpx/vp8/decoder/onyxd_int.h"
+#include "../libvpx/vp8/vp8_dx_iface.c"
+
+#include <stdio.h>
 
 vpx_codec_ctx_t codec;
 
-int main(int argc, char **argv) {
+void die_codec(vpx_codec_ctx_t *ctx, const char *s) {
+  const char *detail = vpx_codec_error_detail(ctx);
+
+  printf("%s: %s\n", s, vpx_codec_error(ctx));
+  if (detail) printf("    %s\n", detail);
+  exit(1);
+}
+
+int init(int argc, char **argv) {
   printf("Using %s\n", vpx_codec_iface_name(vpx_codec_vp8_dx()));
   if (vpx_codec_dec_init(&codec, vpx_codec_vp8_dx(), NULL, 0)){
     die_codec(&codec, "Failed to initialize decoder.");
@@ -17,21 +30,18 @@ int decode(const unsigned char *frame, size_t frame_size){
 
   // struct vpx_codec_alg_priv @ vp8/vp8_dx_iface.c
   // vp8_decode(vpx_codec_alg_priv_t *ctx, ...)'s ctx
-  vpx_codec_alg_priv_t* ctx = (vpx_codec_alg_priv_t *)codec->priv;
+  vpx_codec_alg_priv_t* ctx = (vpx_codec_alg_priv_t *)codec.priv;
 
   // onyxd_int.h: struct VP8D_COMP { ... } VP8D_COMP;
   VP8D_COMP* pbi = ctx->yv12_frame_buffers.pbi[0];
 
-  // onyxd_int.h: typedef struct { MACROBLOCKD mbd; } MB_ROW_DEC;
-  MB_ROW_DEC* mb_row_di = pbi->mb_row_di;
-
-  // vp8/common/blockd.h: struct macroblockd {} MACROBLOCKD;
-  MACROBLOCKD* mbd = mb_row_di->mbd;
-
-  // vp8/common/ typedef struct { ... } MV;
-  MV mv = mbd->mode_info_context->mbmi->mv->as_mv;
-  mv->row;
-  mv->col;
+  for (int row = 0; row < pbi->common.mb_rows; ++row) {
+    for (int col = 0; col < pbi->common.mb_cols; ++col) {
+      const int i = row * pbi->common.mode_info_stride + col;
+      const short _row = pbi->common.mi[i].mbmi.mv.as_mv.row;
+      const short _col = pbi->common.mi[i].mbmi.mv.as_mv.col;
+    }
+  }
 
   return 0;
 }

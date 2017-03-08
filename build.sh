@@ -18,6 +18,7 @@ emconfigure ./configure \
   --extra-cflags="-O2"
 emmake make
 exported_functions=$(node --eval "console.log(JSON.stringify(require('../exported_functions.json')).split('\"').join('\''))")
+# とりあえず side module でコンパイルしてみる
 emcc \
   -O2 \
   --memory-init-file 0 \
@@ -27,3 +28,4 @@ emcc \
   -o ../libvpx.js
 # or -s ALLOW_MEMORY_GROWTH=1
 cd ..
+emcc -s EXPORTED_FUNCTIONS="['_init', '_decode', '_destroy']" -Ilibvpx/ src/decode.c libvpx/libvpx.a -o ./decode.js 
