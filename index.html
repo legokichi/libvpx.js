@@ -1,0 +1,48 @@
+<script src="decode.js"></script>
+<script src="EBML.js"></script>
+<script src="EBMLReader.js"></script>
+<script>
+const decoder = new EBML.Decoder();
+const reader = new EBMLReader();
+//Module.addOnPostRun(()=>{ // mem があるとき
+window.onload = (()=>{ // ないとき
+  console.log("onload");
+  Module.ccall("init", "number", ["number", "*"], []);
+  navigator.mediaDevices.getUserMedia({video: true, audio: true}).then((stream)=>{
+    const rec = new MediaRecorder(stream, { mimeType: 'video/webm; codecs="vp8, opus"' });
+    let task = Promise.resolve();
+    rec.ondataavailable = (ev)=>{
+      task.then(()=> readAsArrayBuffer(ev.data).then((buffer)=>{
+        decoder.decode(buffer).forEach((elm)=>{
+          reader.read(elm);
+        });
+      }) );
+    };
+    reader.addListener("simpleblock_video", ({elm, data: {frames}})=>{
+      console.log(elm.name, frames);
+      for(frame in frames){
+        const size = frame.length;
+        const buf = Module._malloc(size);
+        Module.HEAP8.set(frame, buf);
+        Module.ccall("decode", "number", ["*", "number"], [buf, size]);
+        Module._free(buf);
+      }
+    });
+    rec.start(100);
+    setTimeout(()=>{
+      rec.stop();
+      rec.ondataavailable = undefined;
+      rec.stream.getTracks().map((track) => { track.stop(); });
+    }, 3 * 1000);
+  });
+});
+function readAsArrayBuffer(blob) {
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(blob);
+    reader.onloadend = ()=>{ resolve(reader.result); };
+    reader.onerror = (ev)=>{ reject(ev.error); };
+  });
+}
+console.log("ready")
+</script>

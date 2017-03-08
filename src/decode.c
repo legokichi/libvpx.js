@@ -27,7 +27,7 @@ int decode(const unsigned char *frame, size_t frame_size){
   if (vpx_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0)){
     die_codec(&codec, "Failed to decode frame.");
   }
-
+  /*
   // struct vpx_codec_alg_priv @ vp8/vp8_dx_iface.c
   // vp8_decode(vpx_codec_alg_priv_t *ctx, ...)'s ctx
   vpx_codec_alg_priv_t* ctx = (vpx_codec_alg_priv_t *)codec.priv;
@@ -42,11 +42,9 @@ int decode(const unsigned char *frame, size_t frame_size){
       const short _col = pbi->common.mi[i].mbmi.mv.as_mv.col;
     }
   }
-
+  */
   return 0;
 }
-
-
 
 int destroy(void){
   if (vpx_codec_destroy(&codec)){
