@@ -14,7 +14,6 @@ emconfigure ./configure \
   --disable-install_libs \
   --disable-encode_perf_tests \
   --disable-decode_perf_tests \
-  --disable-vp8_encoder \
   --target=asmjs-unknown-emscripten \
   --extra-cflags="-O2"
 emmake make
@@ -23,7 +22,7 @@ emcc \
   -O2 \
   --memory-init-file 0 \
   -s EXPORTED_FUNCTIONS="$exported_functions" \
-  --post-js ../libvpx.post.js \
+  -s SIDE_MODULE=1
   libvpx.a \
   -o ../libvpx.js
 # or -s ALLOW_MEMORY_GROWTH=1
