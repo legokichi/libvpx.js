@@ -24,25 +24,41 @@ int init(int argc, char **argv) {
 }
 
 int decode(const unsigned char *frame, size_t frame_size){
+  printf("frame_size: %d \n",(unsigned int)frame_size);
   if (vpx_codec_decode(&codec, frame, (unsigned int)frame_size, NULL, 0)){
     die_codec(&codec, "Failed to decode frame.");
   }
-  /*
+
   // struct vpx_codec_alg_priv @ vp8/vp8_dx_iface.c
   // vp8_decode(vpx_codec_alg_priv_t *ctx, ...)'s ctx
-  vpx_codec_alg_priv_t* ctx = (vpx_codec_alg_priv_t *)codec.priv;
+  vpx_codec_alg_priv_t *ctx = (vpx_codec_alg_priv_t *)codec.priv;
 
   // onyxd_int.h: struct VP8D_COMP { ... } VP8D_COMP;
-  VP8D_COMP* pbi = ctx->yv12_frame_buffers.pbi[0];
+  VP8D_COMP *pbi = ctx->yv12_frame_buffers.pbi[0];
+  VP8_COMMON *cm = &pbi->common;
 
-  for (int row = 0; row < pbi->common.mb_rows; ++row) {
-    for (int col = 0; col < pbi->common.mb_cols; ++col) {
-      const int i = row * pbi->common.mode_info_stride + col;
-      const short _row = pbi->common.mi[i].mbmi.mv.as_mv.row;
-      const short _col = pbi->common.mi[i].mbmi.mv.as_mv.col;
+  printf("width: %d, height: %d\n", cm->Width, cm->Height);
+  printf("rows: %d, cols: %d\n", cm->mb_rows, cm->mb_cols);
+  if(!cm->show_frame){
+    printf("=========");
+    return 0;
+  }
+  for (int row = 0; row < cm->mb_rows; ++row) {
+    for (int col = 0; col < cm->mb_cols; ++col) {
+      const int i = row * cm->mode_info_stride + col;
+      MODE_INFO *mi = &cm->mi[i];
+      const uint8_t mode = mi->mbmi.mode; // MB_PREDICTION_MODE
+
+      const short _row = mi->mbmi.mv.as_mv.row;
+      const short _col = mi->mbmi.mv.as_mv.col;
+      const uint8_t is_4x4 = mi->mbmi.is_4x4;
+      printf("mode: %d, row: %d, col: %d, mv: (%d, %d), is_4x4: %d\n", mode, row, col, _row, _col, is_4x4);
+      for(int i=0; i<16; i++){
+        mi->bmi[i];// keyframe => B_PREDICTION_MODE as_mode;, !keyframe, int_mv mv;
+      }
     }
   }
-  */
+
   return 0;
 }
 

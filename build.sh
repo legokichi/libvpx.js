@@ -1,7 +1,7 @@
 cd libvpx
-emmake make clean > /dev/null 2>&1
-git reset --hard
-patch -p1 -i ../configure.patch
+#emmake make clean > /dev/null 2>&1
+#git reset --hard
+#patch -p1 -i ../configure.patch
 emconfigure ./configure \
   --disable-optimizations \
   --disable-runtime-cpu-detect \
@@ -15,7 +15,7 @@ emconfigure ./configure \
   --disable-encode_perf_tests \
   --disable-decode_perf_tests \
   --target=asmjs-unknown-emscripten \
-  --extra-cflags="-g"
+  --extra-cflags="-g -O0"
 # --extra-cflags="-02"
 emmake make
 #exported_functions=$(node --eval "console.log(JSON.stringify(require('../exported_functions.json')).split('\"').join('\''))")
@@ -28,11 +28,13 @@ emmake make
 #  libvpx.a \
 #  -o ../libvpx.js
 # or -s ALLOW_MEMORY_GROWTH=1
-cp ../src/decode.c ./
+\cp -f ../src/decode.c ./
 emcc \
   -s EXPORTED_FUNCTIONS="['_init', '_decode', '_destroy']" \
   -g \
   -g4 \
   -I. \
   ./decode.c libvpx.a \
-  -o ./decode.js 
+  -o ../decode.js 
+echo "fin"
+cd ..

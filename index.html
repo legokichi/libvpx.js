@@ -18,21 +18,23 @@ window.onload = (()=>{ // ないとき
         });
       }) );
     };
-    reader.addListener("simpleblock_video", ({elm, data: {frames}})=>{
-      console.log(elm.name, frames);
-      for(frame in frames){
+    reader.addListener("simpleblock_video", ({elm, data})=>{
+      console.log(elm.name, data);
+      data.frames.forEach((frame)=>{
         const size = frame.length;
+        console.log(size);
         const buf = Module._malloc(size);
         Module.HEAP8.set(frame, buf);
         Module.ccall("decode", "number", ["*", "number"], [buf, size]);
         Module._free(buf);
-      }
+      })
     });
     rec.start(100);
     setTimeout(()=>{
       rec.stop();
       rec.ondataavailable = undefined;
       rec.stream.getTracks().map((track) => { track.stop(); });
+      console.log("end!");
     }, 3 * 1000);
   });
 });

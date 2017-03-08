@@ -229,13 +229,14 @@ var EBMLReader = (function (_super) {
                 this.lastSimpleBlockVideoTrackTimecode = timecode;
                 // デバグ処理ここまで
                 this._duration = this.lastClusterTimecode + timecode;
+                _this.emit("simpleblock_video", {elm, data: _a});
             }
-            _this.emit("simpleblock_video", {elm, data: _a});
             frames_1.forEach(function (frame) {
                 var startcode = frame.slice(3, 6).toString("hex");
                 if (startcode !== "9d012a") {
                     return;
                 }
+                console.log("keyframe");
                 ; // VP8 の場合
                 var webpBuf = tools.VP8BitStreamToRiffWebPBuffer(frame);
                 var webp = new Blob([webpBuf], { type: "image/webp" });
