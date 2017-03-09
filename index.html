@@ -4,11 +4,20 @@
 <script>
 const decoder = new EBML.Decoder();
 const reader = new EBMLReader();
-//Module.addOnPostRun(()=>{ // mem があるとき
-window.onload = (()=>{ // ないとき
+Module.addOnPostRun(()=>{ // mem があるとき
+//window.onload = (()=>{ // ないとき
   console.log("onload");
   Module.ccall("init", "number", ["number", "*"], []);
-  navigator.mediaDevices.getUserMedia({video: true, audio: true}).then((stream)=>{
+  navigator.mediaDevices.getUserMedia(
+    {
+      audio: true,
+      video: {
+        mandatory: {
+          minFrameRate: 1,
+          maxFrameRate: 5,
+          minWidth: 2592,
+          minHeight: 1944 } } }
+  ).then((stream)=>{
     const rec = new MediaRecorder(stream, { mimeType: 'video/webm; codecs="vp8, opus"' });
     let task = Promise.resolve();
     rec.ondataavailable = (ev)=>{
@@ -22,12 +31,29 @@ window.onload = (()=>{ // ないとき
       console.log(elm.name, data);
       data.frames.forEach((frame)=>{
         const size = frame.length;
-        console.log(size);
         const buf = Module._malloc(size);
         Module.HEAP8.set(frame, buf);
+
+        console.time("decode");
         Module.ccall("decode", "number", ["*", "number"], [buf, size]);
+        console.timeEnd("decode");
+
         Module._free(buf);
-      })
+        const width = Module.ccall("width", "number", [], []);
+        const height = Module.ccall("height", "number", [], []);
+        const rows = Module.ccall("mb_rows", "number", [], []);
+        const cols = Module.ccall("mb_cols", "number", [], []);
+        console.log(width, height, rows, cols);
+
+        console.time("each_MB");
+        for (let row = 0; row < rows; ++row) {
+          for (let col = 0; col < cols; ++col) {
+            Module.ccall("mbmi_row", "number", ["number", "number"], [row, col]);
+            Module.ccall("mbmi_col", "number", ["number", "number"], [row, col]);
+          }
+        }
+        console.timeEnd("each_MB");
+      });
     });
     rec.start(100);
     setTimeout(()=>{
@@ -35,7 +61,7 @@ window.onload = (()=>{ // ないとき
       rec.ondataavailable = undefined;
       rec.stream.getTracks().map((track) => { track.stop(); });
       console.log("end!");
-    }, 3 * 1000);
+    }, 10 * 1000);
   });
 });
 function readAsArrayBuffer(blob) {
