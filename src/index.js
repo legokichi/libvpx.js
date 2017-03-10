@@ -1,6 +1,11 @@
 var Module = {};
 //fetchAsArrayBuffer('decode.wasm').then((buf)=>{ Module.wasmBinary = buf; // wasm
 new Promise((resolve)=>{ window.onload = resolve; }).then(()=>{ // asmjs
+  /*
+  const base = document.createElement("base");
+  base.href = "img";
+  document.body.appendChild(base);
+  */
   return Promise.all([
     fetchScript("decode.js"),
     fetchScript("EBML.js"),

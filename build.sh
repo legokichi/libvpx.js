@@ -1,3 +1,5 @@
+rm -f decode.* > /dev/null 2>&1
+rm -f pthread-main.js > /dev/null 2>&1
 cd libvpx
 emmake make clean > /dev/null 2>&1
 git reset --hard
@@ -14,6 +16,7 @@ emconfigure ./configure \
   --disable-encode_perf_tests \
   --disable-decode_perf_tests \
   --target=asmjs-unknown-emscripten \
+  --disable-multithread \
   --extra-cflags="-O2"
 # --disable-multithread
 # --extra-cflags="-g -O0"
@@ -22,7 +25,7 @@ emmake make
 exported_functions=$(node --eval "console.log(JSON.stringify(require('../exported_functions.json')).split('\"').join('\''))")
 \cp -f ../src/decode.c ./
 emcc \
-  -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4 \
+  -s TOTAL_MEMORY=67108864 \
   -s SIMD=1 \
   -O2 --llvm-lto 3 \
   -s EXPORTED_FUNCTIONS="$exported_functions" \
@@ -35,6 +38,7 @@ emcc \
 # https://kripken.github.io/emscripten-site/docs/porting/simd.html
 
 # pthread つかうとき
+# --disable-multithread を取り除く
 # -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4
 # https://kripken.github.io/emscripten-site/docs/porting/pthreads.html
 # https://bugs.chromium.org/p/chromium/issues/detail?id=678410
@@ -51,7 +55,7 @@ emcc \
 # asmjs のとき
 # --memory-init-file 0 : .js.mem 吐かない
 # -s ALLOW_MEMORY_GROWTH=1 : 可変ヒープ
-# -s -s TOTAL_MEMORY=67108864 \
+# -s TOTAL_MEMORY=67108864 \
 
 # 最適化
 # -g -g4 : デバッグ
