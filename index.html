@@ -1,17 +1,33 @@
-<script src="decode.js"></script>
+<!--script src="decode.js"></script-->
 <script src="EBML.js"></script>
 <script src="EBMLReader.js"></script>
 <script>
 const decoder = new EBML.Decoder();
 const reader = new EBMLReader();
-Module.addOnPostRun(()=>{ // mem があるとき
+var Module = {};
+const xhr = new XMLHttpRequest();
+xhr.open('GET', 'decode.wasm', true);
+xhr.responseType = 'arraybuffer';
+xhr.onload = function() {
+  Module.wasmBinary = xhr.response;
+  const script = document.createElement('script');
+  script.src = "decode.js";
+  document.body.appendChild(script);
+  script.onload = ()=>{
+    window.onwasmloaded();
+  };
+};
+xhr.send(null);
+
+window.onwasmloaded = (()=>{ // wasm を自分でロードしたとき
+//Module.addOnPostRun(()=>{ // mem があるとき
 //window.onload = (()=>{ // ないとき
   console.log("onload");
   Module.ccall("init", "number", ["number", "*"], []);
   navigator.mediaDevices.getUserMedia(
     {
       audio: true,
-      video: {
+      video: true || {
         mandatory: {
           minFrameRate: 1,
           maxFrameRate: 5,

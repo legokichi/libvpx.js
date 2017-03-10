@@ -22,16 +22,19 @@ exported_functions=$(node --eval "console.log(JSON.stringify(require('../exporte
 \cp -f ../src/decode.c ./
 emcc \
   -s TOTAL_MEMORY=67108864 \
-  -O2 \
+  -s WASM=1 -s "BINARYEN_METHOD='native-wasm'" \
+  -O2 --llvm-lto 3 \
   -s EXPORTED_FUNCTIONS="$exported_functions" \
   -I. \
   ./decode.c libvpx.a \
-  -o ../decode.js 
+  -o ../decode.js
 # -g -g4 : デバッグ
 # -O2 : 最適化
 # --memory-init-file 0 : .js.mem 吐かない
 # -s ALLOW_MEMORY_GROWTH=1 : 可変ヒープ
 # -s TOTAL_MEMORY=X : ヒープ指定
 # -s SIDE_MODULE=1
+# https://kripken.github.io/emscripten-site/docs/tools_reference/emcc.html
+# https://github.com/kripken/emscripten/wiki/WebAssembly
 echo "fin"
 cd ..
