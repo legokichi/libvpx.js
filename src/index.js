@@ -1,6 +1,6 @@
 var Module = {};
-fetchAsArrayBuffer('decode.wasm').then((buf)=>{
-  Module.wasmBinary = buf;
+//fetchAsArrayBuffer('decode.wasm').then((buf)=>{ Module.wasmBinary = buf; // wasm
+new Promise((resolve)=>{ window.onload = resolve; }).then(()=>{ // asmjs
   return Promise.all([
     fetchScript("decode.js"),
     fetchScript("EBML.js"),

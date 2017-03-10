@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 vpx_codec_ctx_t codec;
+vpx_codec_dec_cfg_t cfg;
 
 void die_codec(vpx_codec_ctx_t *ctx, const char *s) {
   const char *detail = vpx_codec_error_detail(ctx);
@@ -17,7 +18,8 @@ void die_codec(vpx_codec_ctx_t *ctx, const char *s) {
 
 int init(int argc, char **argv) {
   printf("Using %s\n", vpx_codec_iface_name(vpx_codec_vp8_dx()));
-  if (vpx_codec_dec_init(&codec, vpx_codec_vp8_dx(), NULL, 0)){
+  cfg.threads = 4;
+  if (vpx_codec_dec_init(&codec, vpx_codec_vp8_dx(), &cfg, 0)){
     die_codec(&codec, "Failed to initialize decoder.");
   }
   return 0;

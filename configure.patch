@@ -1,5 +1,5 @@
 diff --git a/build/make/configure.sh b/build/make/configure.sh
-index ac60f50..3b7d490 100644
+index ac60f50..72f6db9 100644
 --- a/build/make/configure.sh
 +++ b/build/make/configure.sh
 @@ -456,7 +456,7 @@ NM=${NM}
@@ -11,7 +11,7 @@ index ac60f50..3b7d490 100644
  LDFLAGS = ${LDFLAGS}
  ASFLAGS = ${ASFLAGS}
  extralibs = ${extralibs}
-@@ -1337,6 +1337,22 @@ EOF
+@@ -1337,6 +1337,21 @@ EOF
            ;;
        esac
        ;;
@@ -28,7 +28,6 @@ index ac60f50..3b7d490 100644
 +      add_cflags -emit-llvm
 +      #add_ldflags
 +      #add_asflags
-+      disabled multithread
 +      HAVE_GNU_STRIP=no
 +      ;;
      *-gcc|generic-gnu)
