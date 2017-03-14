@@ -49,7 +49,7 @@ emcc \
   -s EXPORTED_FUNCTIONS="$exported_functions" \
   -O2 --llvm-lto 3 \
   -o ../libvp8.js
-
+sed -in-place 's/PthreadWorkerInit:PthreadWorkerInit});PThread.unusedWorkerPool.push/PthreadWorkerInit:PthreadWorkerInit},[HEAPU8.buffer]);PThread.unusedWorkerPool.push/' libvp8.js
 # simd つかうとき
 # -s SIMD=1
 # https://kripken.github.io/emscripten-site/docs/porting/simd.html
