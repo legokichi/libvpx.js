@@ -1,4 +1,4 @@
-rm -f decode.* > /dev/null 2>&1
+rm -f libvp8.* > /dev/null 2>&1
 rm -f pthread-main.js > /dev/null 2>&1
 cd libvpx
 emmake make clean > /dev/null 2>&1
@@ -22,16 +22,33 @@ emconfigure ./configure \
 # --extra-cflags="-g -O0"
 # --disable-optimizations
 emmake make
-exported_functions=$(node --eval "console.log(JSON.stringify(require('../exported_functions.json')).split('\"').join('\''))")
-\cp -f ../src/decode.c ./
+
+echo making iface
+
 emcc \
+  -I./ \
+  ../src/decode.c \
+  -O2 --llvm-lto 1 \
+  -o ./decode.bc
+
+echo linking...
+
+emcc \
+  ./decode.bc \
+  ./libvpx.a \
+  -O2 --llvm-lto 1 \
+  -o ./libvp8.bc
+
+echo emitting to js
+
+exported_functions=$(node --eval "console.log(JSON.stringify(require('../exported_functions.json')).split('\"').join('\''))")
+
+emcc \
+  ./libvp8.bc \
   -s TOTAL_MEMORY=67108864 \
-  -s SIMD=1 \
-  -O2 --llvm-lto 3 \
   -s EXPORTED_FUNCTIONS="$exported_functions" \
-  -I. \
-  ./decode.c libvpx.a \
-  -o ../decode.js
+  -O2 --llvm-lto 3 \
+  -o ../libvp8.js
 
 # simd つかうとき
 # -s SIMD=1

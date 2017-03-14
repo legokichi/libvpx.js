@@ -7,7 +7,7 @@ new Promise((resolve)=>{ window.onload = resolve; }).then(()=>{ // asmjs
   document.body.appendChild(base);
   */
   return Promise.all([
-    fetchScript("decode.js"),
+    fetchScript("libvp8.js"),
     fetchScript("EBML.js"),
     fetchScript("EBMLReader.js"),
   ]);
